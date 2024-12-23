@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trace Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: #34495e;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .dashboard-section {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-section img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .no-data {
+            text-align:center;
+            color: #e74c3c;
+            font-style: italic;
+        }
+
+        .response-time {
+            font-weight: bold;
+            color: #27ae60;
+            margin-top: 10px;
+        }
+        .frequency-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .frequency-table th,
+        .frequency-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        .frequency-table th {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+        }
+
+        .frequency-table td {
+            background-color: #f9f9f9;
+        }
+
+        .frequency-table tr:nth-child(even) td {
+            background-color: #f1f1f1;
+        }
+
+        .frequency-table tr:hover {
+            background-color: #e2f7d5;
+        }
+
+        .frequency-table td {
+            word-wrap: break-word;
+            max-width: 200px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            h2 {
+                font-size: 1.2em;
+            }
+            .frequency-table th, .frequency-table td {
+                padding: 10px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Trace Dashboard</h1>
+    {% if average_response_time %}
+        <h3 style="text-align:center">Average Response Time : <span class="response-time">{{ average_response_time }} Seconds</span></h3>
+    {% else %}
+        <h3 style="text-align:center">Average Response Time : <span class="no-data">No data available.</span></h3>
+
+    {% endif %}
+    <div class="container">
+        <div class="dashboard-section">
+            <h2>Status Code Proportion</h2>
+            {% if status_img %}
+                <img src="data:image/png;base64,{{ status_img }}" alt="Status Code Proportion">
+            {% else %}
+                <p class="no-data">No data available.</p>
+            {% endif %}
+        </div>
+        <div class="dashboard-section">
+            <h2>Request Method Frequency</h2>
+            {% if method_img %}
+                <img src="data:image/png;base64,{{ method_img }}" alt="Request Method Frequency">
+            {% else %}
+                <p class="no-data">No data available.</p>
+            {% endif %}
+        </div>
+        <div class="dashboard-section">
+            <h2>Status Code Grouping</h2>
+            {% if status_category_img %}
+                <img src="data:image/png;base64,{{ status_category_img }}" alt="Status Code Grouping">
+            {% else %}
+                <p class="no-data">No data available.</p>
+            {% endif %}
+        </div>
+    </div>
+    <div style="margin-top:30px;" class="dashboard-section">
+    <h2>Message Frequency Analysis</h2>
+    {% if message_frequency_data %}
+        <table class="frequency-table">
+            <thead>
+                <tr>
+                    <th>Message</th>
+                    <th>Frequency</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for message, frequency in message_frequency_data.items() %}
+                    <tr>
+                        <td>{{ message }}</td>
+                        <td>{{ frequency }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="no-data">No data available.</p>
+    {% endif %}
+</div>
+</body>
+</html>

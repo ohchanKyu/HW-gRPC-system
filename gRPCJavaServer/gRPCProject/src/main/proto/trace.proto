@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option java_multiple_files = false;
+option java_package = "kr.ac.dankook";
+
+service TraceService {
+  rpc StreamTrace (stream TraceRequest) returns (TraceResponse);
+}
+
+message TraceRequest {
+  int64 request_id = 1;
+  string service_name = 2;
+  int64 timestamp = 3;
+  string method = 4;
+  int64 status = 5;
+  string message = 6;
+}
+
+message TraceResponse {
+  int64 status = 1;
+  string message = 2;
+}

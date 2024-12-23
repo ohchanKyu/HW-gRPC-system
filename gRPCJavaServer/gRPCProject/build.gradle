@@ -1,0 +1,51 @@
+plugins {
+    id 'java'
+    id 'com.google.protobuf' version '0.9.4'
+}
+
+group = 'kr.ac.dankook'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.25.1"
+    }
+    plugins {
+        grpc {
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.64.0'
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+}
+
+compileJava.options.encoding='UTF-8'
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = "UTF-8"
+}
+dependencies {
+    runtimeOnly 'io.grpc:grpc-netty-shaded:1.57.1'
+    implementation 'io.grpc:grpc-protobuf:1.57.1'
+    implementation 'io.grpc:grpc-stub:1.57.1'
+    compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
+}
+
+tasks.register('runCentralTraceServer', JavaExec) {
+    mainClass = 'kr.ac.dankook.CentralTraceServer'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.register('runTraceClient', JavaExec) {
+    mainClass = 'kr.ac.dankook.TraceClient'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+test {
+    useJUnitPlatform()
+}
