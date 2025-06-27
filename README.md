@@ -1,7 +1,7 @@
 # gRPC-System
 
 ## HW 개요
-이 애플리케이션은 Java gRPC Client <-> Java gRPC Server <-> Python gRPC Server 구조로, <br>
+이 애플리케이션은 Java gRPC Client ⇄ Java gRPC Server ⇄ Python gRPC Server 구조로, <br>
 클라이언트 스트리밍을 통해 요청 데이터를 수집하고 분석하는 시스템입니다. <br>
 Java는 데이터 수집을, Python은 분석 및 시각화를 담당하며, <br>
 분석 결과는 Flask 서버의 /dashboard URI를 통해 실시간으로 사용자에게 시각화되어 제공됩니다. <br>
@@ -9,17 +9,15 @@ gRPC의 다중 언어 지원과 Python의 분석/그래프 능력을 효과적�
 
 <br>
 
-## Java <-> Python 기반 gRPC 데이터 흐름
-#### ﻿Java gRPC Client <-> Server
-Java gRPC Client는 클라이언트 스트리밍 방식으로 다수의 요청/응답 데이터를 <br>
-Java gRPC Server에 전송합니다. Server는 이 데이터를 수집한 뒤, <br>
-20초 간격으로 Python gRPC Server에 스트리밍 전송하여 분석 작업을 위임합니다. <br>
+## Java ⇄ Python 기반 gRPC 데이터 흐름
+#### ﻿Java gRPC Client ⇄ Server
+Java gRPC Client는 클라이언트 스트리밍 방식으로 다수의 요청/응답 데이터를 Java gRPC Server에 전송합니다. <br>
+Server는 이 데이터를 수집한 뒤, 20초 간격으로 Python gRPC Server에 스트리밍 전송하여 분석 작업을 위임합니다. <br>
 
 <br>
 
 #### Python gRPC Server의 데이터 분석
-Python gRPC Server는 Pandas를 이용해 요청/응답 패턴을 분석하고, <br>
-평균 응답 시간, 요청 유형 빈도 등 주요 지표를 도출합니다. <br>
+Python gRPC Server는 Pandas를 이용해 요청/응답 패턴을 분석하고, 평균 응답 시간, 요청 유형 빈도 등 주요 지표를 도출합니다. <br>
 이를 통해 시스템 상태를 진단하고 인사이트를 제공합니다. <br>
 
 <br>
@@ -61,7 +59,7 @@ Flask는 데이터를 matplotlib를 이용해 시각화하고 /dashboard를 통�
 
 
 ## 주요 Proto File
-### trace.proto ( Java gRPC Client <-> Java gRPC Server )
+### trace.proto ( Java gRPC Client ⇄ Java gRPC Server )
 ```proto
 syntax = "proto3";
   option java_multiple_files = false;
@@ -84,7 +82,7 @@ syntax = "proto3";
 ```
 <br> 
 
-### dashboard.proto ( Java gRPC Server <-> Python gRPC Server )
+### dashboard.proto ( Java gRPC Server ⇄ Python gRPC Server )
 ```proto
 syntax = "proto3";
 message DashboardRequest {
@@ -110,11 +108,11 @@ service DashboardService {
 
 <br>
 
-1️⃣ Java gRPC Client -> Java gRPC Server (Client Streaming) <br>
+1️⃣ Java gRPC Client ⇒ Java gRPC Server (Client Streaming) <br>
 Java gRPC Client는 Trace 데이터를 생성하여 Java gRPC Server에 Client Streaming 방식으로 전송합니다. <br>
 Java gRPC Server는 모든 Trace 데이터를 수신한 뒤, 하나의 응답 메시지를 Client에게 반환합니다. <br>
 
-2️⃣ Java gRPC Server -> Python gRPC Server (주기적 전송) <br>
+2️⃣ Java gRPC Server ⇒ Python gRPC Server (주기적 전송) <br>
 Java gRPC Server 내부 백그라운드 스레드는 20초마다 수집된 Trace 데이터 전체를 <br>
 Python gRPC Server로 전송합니다. 전송은 역시 Client Streaming 방식이며, <br>
 전달 완료 후 Python gRPC Server로부터 응답 메시지를 수신합니다.
@@ -168,7 +166,7 @@ cd ./HW-gRPC-system
 sudo apt-get install python3-pip
 pip3 install flask pandas matplotlib seaborn
 ```
-#### ( Python gRPC ) 및 gRPC Python 코드 생성
+#### Python gRPC 및 gRPC Python 코드 생성
 ```Bash
 cd ./gRPCPythonServer
 pip3 install grpcio grpcio-tools requests
@@ -181,6 +179,7 @@ chmod +x gradlew
 ./gradlew generateProto
 ./gradlew build
 ```
+<br>
 
 ### 3개의 서버 및 클라이언트 실행
 #### Flask 서버 실행
@@ -204,6 +203,8 @@ cd ./gRPCJavaServer/gRPCProject
 ./gradlew runTraceClient
 ```
 
+<br>
+
 ## **Test Application**
 ### Java gRPC Server에서 Python gRPC Server에게 데이터 전달
 Java gRPC Server에서 클라이언트 스트리밍을 통해 Python gRPC Server에게 데이터를 전달합니다. <br>
@@ -221,10 +222,10 @@ Python gRPC Server에서는 스트리밍으로 Java Server로부터 모든 추�
 Pandas 라이브러리를 통해 해당 데이터를 분석합니다. 하지만 아직 Server로부터 받은 <br>
 추적 데이터의 개수가 0이므로 다음과 같은 출력을 하고 Flask Server에게 아무 데이터도 전달하지 않습니다. <br>
 
-**Python gRPC Server 출력 화면** <br>
+- **Python gRPC Server 출력 화면** <br>
 ![image](https://github.com/user-attachments/assets/2b5fe8b9-6066-418f-b990-55929b74c7ee)
 
-**Flask Server 렌더링 초기 화면** <br>
+- **Flask Server 렌더링 초기 화면** <br>
 ```
 http://localhost:8080/dashboard
 ```
@@ -242,29 +243,31 @@ Trace 정보는 모두 Java gRPC Server에서 List로 관리되며, Java gRPC Cl
 추적 데이터를 클라이언트 스트리밍을 통해 Java gRPC Server에게 전달합니다. <br>
 전달이 모두 완료되면 Java gRPC Server로부터 하나의 응답 메시지를 전달 받습니다. <br>
 
-**Java gRPC Client 출력 화면** <br>
+- **Java gRPC Client 출력 화면** <br>
 ![image](https://github.com/user-attachments/assets/bebf815c-84c8-4fcf-b3d3-f9b0cc1723e0)
 
-**모든 데이터 전송 후 Java gRPC Server로부터 받은 메세지 출력** <br>
+- **모든 데이터 전송 후 Java gRPC Server로부터 받은 메세지 출력** <br>
 ![image](https://github.com/user-attachments/assets/8ba00463-8122-444b-9a11-8e39f877a52d)
 
-**데이터를 전달 받은 Java gRPC Server의 출력** <br>
+- **데이터를 전달 받은 Java gRPC Server의 출력** <br>
 ![image](https://github.com/user-attachments/assets/20642da2-e2af-4b25-94a3-52ea05b1684c)
 
-**데이터를 전달 받은 Python gRPC Server의 출력** <br>
-응답 코드 비율 / HTTP Method 요청 빈도 수 출력 <br>
+- **데이터를 전달 받은 Python gRPC Server의 출력** <br>
+- 응답 코드 비율 / HTTP Method 요청 빈도 수 출력 <br>
 ![image](https://github.com/user-attachments/assets/1aa516e1-8dd0-4cd8-b8cd-6e79a26f8e2f)
 
 <br>
-평균 응답 시간 / 응답 코드의 그룹화 / 응답 메시지 빈도 수 출력 <br>
-![image](https://github.com/user-attachments/assets/db508cf1-c292-456d-9eb0-e055475eb92f)
+- 평균 응답 시간 / 응답 코드의 그룹화 / 응답 메시지 빈도 수 출력 <br>
+
+![image](https://github.com/user-attachments/assets/e1b80da7-fe19-40b6-8f14-17aa63f858f5)
 
 **데이터를 전달 받은 Flask Server** <br>
 Flask Server는 Python gRPC Server에게 데이터가 유효하다면, 20초마다 POST 요청을 받습니다. <br>
-POST 요청을 받은 Flask Server의 출력 <br>
+
+- **POST 요청을 받은 Flask Server의 출력** <br>
 ![image](https://github.com/user-attachments/assets/e7eff57b-4f04-4d69-8e13-e349e173c661)
 
-데이터를 반영한 웹 페이지 화면 <br>
+- **데이터를 반영한 웹 페이지 화면** <br>
 ![image](https://github.com/user-attachments/assets/1d5003a5-ab7a-4b71-a38c-7b071a0186fc)
 ![image](https://github.com/user-attachments/assets/fa0d1e35-c4c4-4802-9874-63921fcd0cc2)
 
